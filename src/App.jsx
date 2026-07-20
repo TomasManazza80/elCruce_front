@@ -5,6 +5,7 @@ import LoginCard from "./components/auth/LoginCard.js";
 import {Provider, useSelector} from "react-redux";
 import {store} from "./services/store/store.js";
 import {SignUpCard} from "./components/auth/SignUpCard.tsx";
+import {SignUpAdminCard} from "./components/auth/SignUpAdminCard.tsx";
 import Navbar from "./components/nav/Navbar.jsx";
 import {TooltipProvider} from "./components/ui/tooltip.tsx";
 import ReporteGanancias from "./pages/content/reporte.jsx";
@@ -67,7 +68,7 @@ const AppContent = () => {
     }, []);
 
     // Añadimos las rutas públicas para que no muestren el Navbar
-    const isPublicRoute = location.pathname === '/' || location.pathname === '/propiedades' || location.pathname === '/tienda' || location.pathname === '/login' || location.pathname === '/signup' || location.pathname.startsWith('/propiedades/');
+    const isPublicRoute = location.pathname === '/' || location.pathname === '/propiedades' || location.pathname === '/tienda' || location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/signup-admin' || location.pathname.startsWith('/propiedades/');
     const showNavbar = !isPublicRoute;
 
     const token = useSelector(state => state.authSlice.accessToken)
@@ -117,6 +118,7 @@ const AppContent = () => {
                         <Route path="/tienda" element={<PriceList />} />
                         <Route path="/login" element={<LoginCard/>} />
                         <Route path="/signup" element={<SignUpCard/>}/>
+                        <Route path="/signup-admin" element={<SignUpAdminCard/>}/>
                     </Routes>
                 )}
 

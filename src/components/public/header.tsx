@@ -153,14 +153,7 @@ export function Header({ alwaysSolid = false, topBarText = null, topBarPromo = n
             </button>
           ) : null}
 
-          {(authSlice?.accessToken && user && ['ADMIN', 'EMPLOYEE', 'REALTOR'].includes(user.role)) ? (
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="bg-black/40 border border-yellow-500/50 hover:bg-yellow-500 hover:border-yellow-500 transition-all duration-300 px-6 py-2 text-[11px] font-bold tracking-widest text-white uppercase rounded-sm backdrop-blur-sm"
-            >
-              ADMIN
-            </button>
-          ) : (authSlice?.accessToken && user && !['ADMIN', 'EMPLOYEE', 'REALTOR'].includes(user.role)) ? (
+          {(authSlice?.accessToken && user && user.role === 'ADMIN') ? (
             <button
               onClick={() => navigate('/dashboard')}
               className="bg-black/40 border border-white/30 hover:bg-white/10 transition-all duration-300 px-6 py-2 text-[11px] font-bold tracking-widest text-white uppercase rounded-sm backdrop-blur-sm"
@@ -168,6 +161,18 @@ export function Header({ alwaysSolid = false, topBarText = null, topBarPromo = n
               MI PANEL
             </button>
           ) : null}
+
+          {authSlice?.accessToken && (
+            <button
+              onClick={() => {
+                handleLogout();
+                navigate('/');
+              }}
+              className="bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 px-6 py-2 text-[11px] font-bold tracking-widest uppercase rounded-sm backdrop-blur-sm"
+            >
+              SALIR
+            </button>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -246,16 +251,31 @@ export function Header({ alwaysSolid = false, topBarText = null, topBarPromo = n
               INICIAR SESIÓN
             </Button>
           ) : (
-            <Button
-              variant="outline"
-              onClick={() => {
-                navigate('/dashboard');
-                setIsMobileMenuOpen(false);
-              }}
-              className="border-yellow-500/50 text-white hover:bg-yellow-500 hover:text-black font-medium px-8 py-3 rounded-none transition-all duration-300 tracking-widest uppercase text-sm bg-transparent"
-            >
-              {user && ['ADMIN', 'EMPLOYEE', 'REALTOR'].includes(user.role) ? 'ADMIN' : 'MI PANEL'}
-            </Button>
+            <>
+              {user && user.role === 'ADMIN' && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigate('/dashboard');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="border-white/30 text-white hover:bg-white/10 font-medium px-8 py-3 rounded-none transition-all duration-300 tracking-widest uppercase text-sm bg-transparent"
+                >
+                  MI PANEL
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  handleLogout();
+                  navigate('/');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white font-medium px-8 py-3 rounded-none transition-all duration-300 tracking-widest uppercase text-sm bg-transparent"
+              >
+                SALIR
+              </Button>
+            </>
           )}
         </nav>
       </div>

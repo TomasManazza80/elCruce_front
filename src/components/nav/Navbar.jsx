@@ -56,7 +56,8 @@ const Navbar = ({ children }) => {
         navigate('/login');
     };
 
-    const { isLoading: userIsLoading } = useGetUserQuery();
+    const { data: userResponse, isLoading: userIsLoading } = useGetUserQuery();
+    const user = userResponse?.data;
 
     // use prefetch on user, properties API
     const prefetchProperties = usePrefetch("getProperties")
@@ -78,7 +79,15 @@ const Navbar = ({ children }) => {
     prefetchExpenses();
 
     function getNavItems(section) {
-        return items.filter(item => item.section === section);
+        return items.filter(item => {
+            if (item.section !== section) return false;
+            
+            // Si el item es para admin (Usuarios, Carga de Mercadería), requerir rol ADMIN
+            if (item.url === '/users' || item.url.startsWith('/admin')) {
+                return user?.role === 'ADMIN';
+            }
+            return true;
+        });
     }
 
     // If user is not logged in, but we are still waiting for the API (/user) to respond, show a loading spinner
@@ -104,46 +113,59 @@ const Navbar = ({ children }) => {
             <div
                 className={"bottom-0 top-[88px] flex flex-col z-40 border-r-2 border-border w-16 md:w-56 bg-background-light fixed "}
             >
-                <div className="flex-1 overflow-y-auto py-5">
-                    <nav className="hidden md:flex flex-col gap-y-2">
-                        <p className="text-muted-foreground font-500 mx-2 uppercase">
-                            MENÚ
-                        </p>
-                        <div className="flex flex-col gap-2 mx-2">
-                            {getNavItems("MENU").map((item, index) => (
-                                <Button variant={getNavButtonVariant(item.url)} className="w-full justify-start flex gap-2" key={index}
+                <div className="flex-1 overflow-y-auto py-5 flex flex-col justify-between">
+                    <div>
+                        <nav className="hidden md:flex flex-col gap-y-2">
+                            <p className="text-muted-foreground font-500 mx-2 uppercase">
+                                MENÚ
+                            </p>
+                            <div className="flex flex-col gap-2 mx-2">
+                                {getNavItems("MENU").map((item, index) => (
+                                    <Button variant={getNavButtonVariant(item.url)} className="w-full justify-start flex gap-2" key={index}
+                                        onClick={() => navigate(item.url)}>
+                                        {item.icon}
+                                        {item.title}
+                                    </Button>
+                                )
+                                )}
+                            </div>
+
+                            <div className="flex flex-col gap-2 mx-2">
+                                {getNavItems("PERSONAL").map((item, index) => (
+                                    <Button variant={getNavButtonVariant(item.url)} className="w-full justify-start flex gap-2" key={index}
+                                        onClick={() => navigate(item.url)}>
+                                        {item.icon}
+                                        {item.title}
+                                    </Button>
+                                )
+                                )}
+                            </div>
+                        </nav>
+
+                        <nav className="md:hidden flex flex-col justify-center items-center gap-y-1">
+                            {getNavItems("MENU").concat(getNavItems("PERSONAL")).map((item, index) => (
+                                <Button key={index} variant={getNavButtonVariant(item.url)} size="icon"
+                                    className="justify-center items-center"
                                     onClick={() => navigate(item.url)}>
                                     {item.icon}
-                                    {item.title}
                                 </Button>
-                            )
-                            )}
-                        </div>
+                            ))}
+                        </nav>
+                    </div>
 
-                        <div className="flex flex-col gap-2 mx-2">
-                            {getNavItems("PERSONAL").map((item, index) => (
-                                <Button variant={getNavButtonVariant(item.url)} className="w-full justify-start flex gap-2" key={index}
-                                    onClick={() => navigate(item.url)}>
-                                    {item.icon}
-                                    {item.title}
-                                </Button>
-                            )
-                            )}
-                        </div>
-                    </nav>
-
-                    <nav className="md:hidden flex flex-col justify-center items-center gap-y-1">
-                        {getNavItems("MENU").concat(getNavItems("PERSONAL")).map((item, index) => (
-                            <Button key={index} variant={getNavButtonVariant(item.url)} size="icon"
-                                className="justify-center items-center"
-                                onClick={() => navigate(item.url)}>
-                                {item.icon}
-                            </Button>
-                        ))}
-                    </nav>
+                    <div className="mt-8 px-2 hidden md:block">
+                        <Button variant="ghost" className="w-full justify-start flex gap-2 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={handleLogout}>
+                            <LogOutIcon className="h-5 w-5" />
+                            Cerrar sesión
+                        </Button>
+                    </div>
+                    
+                    <div className="mt-8 px-2 md:hidden flex justify-center">
+                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={handleLogout}>
+                            <LogOutIcon className="h-5 w-5" />
+                        </Button>
+                    </div>
                 </div>
-
-
             </div>
         )
     }

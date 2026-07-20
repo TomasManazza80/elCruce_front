@@ -38,6 +38,7 @@ export default function UserManagement() {
     const [deleteUser, { isLoading: isDeletingUser }] = useAdminDeleteUserMutation();
     
     const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [createAdminModalOpen, setCreateAdminModalOpen] = useState(false);
     const [roleModalOpen, setRoleModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -48,6 +49,18 @@ export default function UserManagement() {
     const form = useForm({
         resolver: zodResolver(userFormSchema),
         defaultValues: { email: '', password: '', first_name: '', last_name: '', role: 'USER' }
+    });
+
+    const adminFormSchema = z.object({
+        email: z.string().email(),
+        password: z.string().min(8),
+        first_name: z.string().min(1),
+        last_name: z.string().min(1),
+    });
+
+    const adminForm = useForm({
+        resolver: zodResolver(adminFormSchema),
+        defaultValues: { email: '', password: '', first_name: '', last_name: '' }
     });
 
     const editForm = useForm({
@@ -61,6 +74,18 @@ export default function UserManagement() {
             toast({ title: "Usuario creado", variant: "success" });
             setCreateModalOpen(false);
             form.reset();
+            refetch();
+        } catch (error) {
+            toast({ title: "Error al crear", description: error.data?.message || "Ocurrió un error", variant: "error" });
+        }
+    };
+
+    const handleCreateAdmin = async (values) => {
+        try {
+            await createUser({ ...values, role: 'ADMIN' }).unwrap();
+            toast({ title: "Administrador creado", variant: "success" });
+            setCreateAdminModalOpen(false);
+            adminForm.reset();
             refetch();
         } catch (error) {
             toast({ title: "Error al crear", description: error.data?.message || "Ocurrió un error", variant: "error" });
@@ -126,49 +151,83 @@ export default function UserManagement() {
                     <p className="text-muted-foreground mt-2">Administra los accesos y roles del sistema.</p>
                 </div>
                 
-                <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="gap-2 bg-primary hover:bg-primary/90"><UserPlus size={18}/> Nuevo Usuario</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Crear Usuario</DialogTitle>
-                        </DialogHeader>
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(handleCreateUser)} className="space-y-4">
-                                <FormField control={form.control} name="email" render={({field}) => (
-                                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
-                                )} />
-                                <div className="grid grid-cols-2 gap-4">
-                                    <FormField control={form.control} name="first_name" render={({field}) => (
-                                        <FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
+                <div className="flex gap-2">
+                    {/* Botón y Modal para Crear Usuario General */}
+                    <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="gap-2 bg-primary hover:bg-primary/90"><UserPlus size={18}/> Nuevo Usuario</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Crear Usuario</DialogTitle>
+                            </DialogHeader>
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(handleCreateUser)} className="space-y-4">
+                                    <FormField control={form.control} name="email" render={({field}) => (
+                                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
                                     )} />
-                                    <FormField control={form.control} name="last_name" render={({field}) => (
-                                        <FormItem><FormLabel>Apellido</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <FormField control={form.control} name="first_name" render={({field}) => (
+                                            <FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
+                                        )} />
+                                        <FormField control={form.control} name="last_name" render={({field}) => (
+                                            <FormItem><FormLabel>Apellido</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
+                                        )} />
+                                    </div>
+                                    <FormField control={form.control} name="password" render={({field}) => (
+                                        <FormItem><FormLabel>Contraseña</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage/></FormItem>
                                     )} />
-                                </div>
-                                <FormField control={form.control} name="password" render={({field}) => (
-                                    <FormItem><FormLabel>Contraseña</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage/></FormItem>
-                                )} />
-                                <FormField control={form.control} name="role" render={({field}) => (
-                                    <FormItem>
-                                        <FormLabel>Rol</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger><SelectValue placeholder="Selecciona un rol" /></SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {ROLES.map(r => <SelectItem key={r} value={r}>{RoleNames[r] || r}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage/>
-                                    </FormItem>
-                                )} />
-                                <Button type="submit" disabled={isCreating} className="w-full">Guardar Usuario</Button>
-                            </form>
-                        </Form>
-                    </DialogContent>
-                </Dialog>
+                                    <FormField control={form.control} name="role" render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>Rol</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger><SelectValue placeholder="Selecciona un rol" /></SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {ROLES.map(r => <SelectItem key={r} value={r}>{RoleNames[r] || r}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )} />
+                                    <Button type="submit" disabled={isCreating} className="w-full">Guardar Usuario</Button>
+                                </form>
+                            </Form>
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* Botón y Modal para Crear Administrador */}
+                    <Dialog open={createAdminModalOpen} onOpenChange={setCreateAdminModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="gap-2 bg-red-600 hover:bg-red-700 text-white"><UserPlus size={18}/> Crear Admin</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Crear Administrador</DialogTitle>
+                            </DialogHeader>
+                            <Form {...adminForm}>
+                                <form onSubmit={adminForm.handleSubmit(handleCreateAdmin)} className="space-y-4">
+                                    <FormField control={adminForm.control} name="email" render={({field}) => (
+                                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
+                                    )} />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <FormField control={adminForm.control} name="first_name" render={({field}) => (
+                                            <FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
+                                        )} />
+                                        <FormField control={adminForm.control} name="last_name" render={({field}) => (
+                                            <FormItem><FormLabel>Apellido</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
+                                        )} />
+                                    </div>
+                                    <FormField control={adminForm.control} name="password" render={({field}) => (
+                                        <FormItem><FormLabel>Contraseña</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage/></FormItem>
+                                    )} />
+                                    <Button type="submit" disabled={isCreating} className="w-full bg-red-600 hover:bg-red-700 text-white">Guardar Administrador</Button>
+                                </form>
+                            </Form>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
 
             <div className="border rounded-md bg-card">

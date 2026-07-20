@@ -8,7 +8,7 @@ import {Button} from "../ui/button.tsx";
 import {useNavigate} from "react-router-dom";
 import PublicAuthLayout from "./PublicAuthLayout.jsx";
 
-export const SignUpCard = () => {
+export const SignUpAdminCard = () => {
     const navigate = useNavigate();
     const [register, {isLoading}] = useRegisterMutation();
     const [login, {isLoading: loginIsLoading }] = useLoginMutation();
@@ -58,11 +58,11 @@ export const SignUpCard = () => {
     })
 
     function onSubmit(data) {
-        register({...data, role: 'USER'}).then((res: any) => {
+        register({...data, role: 'ADMIN'}).then((res: any) => {
             if (res.data) {
                 login({email: form.getValues('email'), password: form.getValues('password')}).then((res: any) => {
                     if (res.data) {
-                        navigate("/")
+                        navigate("/dashboard")
                     }
                 })
             }
@@ -72,8 +72,8 @@ export const SignUpCard = () => {
     return (
         <PublicAuthLayout>
             <div className="text-center mb-6">
-                <h1 className="text-3xl font-serif text-white mb-2">Crear Cuenta</h1>
-                <p className="text-white/60 text-sm">Registra tus datos para acceder al sistema</p>
+                <h1 className="text-3xl font-serif text-white mb-2">Crear Administrador</h1>
+                <p className="text-white/60 text-sm">Registra una nueva cuenta con permisos administrativos</p>
             </div>
 
             <Form {...form} >
@@ -151,15 +151,12 @@ export const SignUpCard = () => {
                     />
 
                     <Button type="submit" className="w-full bg-[#b91c1c] hover:bg-[#991b1b] text-white font-semibold mt-4" disabled={isLoading || loginIsLoading}>
-                        {(isLoading || loginIsLoading) ? "Procesando..." : "Registrarse"}
+                        {(isLoading || loginIsLoading) ? "Procesando..." : "Crear Administrador"}
                     </Button>
 
-                    <div className="mt-4 text-center space-y-2 flex flex-col items-center">
+                    <div className="mt-4 text-center">
                         <Button variant="link" type="button" className="text-white/60 hover:text-[#b91c1c]" onClick={() => navigate("/login")}>
-                            ¿Ya tienes una cuenta? Inicia sesión
-                        </Button>
-                        <Button variant="link" type="button" className="text-white/40 text-xs hover:text-[#b91c1c]" onClick={() => navigate("/signup-admin")}>
-                            Crear cuenta de Administrador
+                            Volver al Inicio de Sesión
                         </Button>
                     </div>
                 </form>
