@@ -62,7 +62,7 @@ export const SignUpAdminCard = () => {
             if (res.data) {
                 login({email: form.getValues('email'), password: form.getValues('password')}).then((res: any) => {
                     if (res.data) {
-                        navigate("/dashboard")
+                        navigate("/admin/mercaderia")
                     }
                 })
             }

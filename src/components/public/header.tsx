@@ -155,7 +155,7 @@ export function Header({ alwaysSolid = false, topBarText = null, topBarPromo = n
 
           {(authSlice?.accessToken && user && user.role === 'ADMIN') ? (
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/admin/mercaderia')}
               className="bg-black/40 border border-white/30 hover:bg-white/10 transition-all duration-300 px-6 py-2 text-[11px] font-bold tracking-widest text-white uppercase rounded-sm backdrop-blur-sm"
             >
               MI PANEL
@@ -256,7 +256,7 @@ export function Header({ alwaysSolid = false, topBarText = null, topBarPromo = n
                 <Button
                   variant="outline"
                   onClick={() => {
-                    navigate('/dashboard');
+                    navigate('/admin/mercaderia');
                     setIsMobileMenuOpen(false);
                   }}
                   className="border-white/30 text-white hover:bg-white/10 font-medium px-8 py-3 rounded-none transition-all duration-300 tracking-widest uppercase text-sm bg-transparent"

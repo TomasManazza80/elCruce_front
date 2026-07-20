@@ -28,7 +28,7 @@ const LoginCard = () => {
     function onSubmit(zodValues) {
         login(zodValues).then((res) => {
             if (res.data) {
-                navigate('/dashboard')
+                navigate('/admin/mercaderia')
             } else if (res.error) {
                 form.setError("password", { message: "Correo electrónico o contraseña incorrectos." });
             }

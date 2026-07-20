@@ -47,9 +47,10 @@ export default function PriceList() {
         }
     }, [isLoading, selectedCategory, searchTerm]);
 
-    const categories = ['TODOS', ...(dbCategories?.map(c => c.name) || [])];
+    const categories = ['TODOS', ...(dbCategories?.map(c => c.name).filter(name => name.toUpperCase() !== 'DESTACADOS VERTICAL') || [])];
 
     const filteredProducts = products?.filter(product => {
+        if (product.category?.toUpperCase() === 'DESTACADOS VERTICAL') return false;
         const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = selectedCategory === 'TODOS' || product.category === selectedCategory;
         return matchesSearch && matchesCategory;

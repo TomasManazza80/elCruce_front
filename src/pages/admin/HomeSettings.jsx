@@ -30,8 +30,9 @@ export default function HomeSettings() {
     setSaveSuccess(false); // Reset success state when editing
   };
 
-  const handleSave = async () => {
-    if (!content) return;
+  const handleSave = async (overrideContent) => {
+    const dataToSave = (overrideContent && !overrideContent.nativeEvent) ? overrideContent : content;
+    if (!dataToSave) return;
     setIsSaving(true);
     setSaveSuccess(false);
 
@@ -43,7 +44,7 @@ export default function HomeSettings() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ homeContent: content })
+        body: JSON.stringify({ homeContent: dataToSave })
       });
 
       if (res.ok) {
@@ -64,7 +65,7 @@ export default function HomeSettings() {
     <div className="relative w-full h-full min-h-screen bg-gray-900 overflow-x-hidden flex flex-col">
       {/* Live Preview Wrapper */}
       <div className="pointer-events-auto flex-grow">
-        <Home editMode={true} onContentChange={handleContentChange} />
+        <Home editMode={true} homeContentData={content} onContentChange={handleContentChange} />
       </div>
 
       {/* Admin Toolbar (Bottom) */}
@@ -197,6 +198,7 @@ export default function HomeSettings() {
                   if (promoRef.current) newContent.headerPromoText = promoRef.current.innerHTML;
                   handleContentChange(newContent);
                   setIsPromoModalOpen(false);
+                  handleSave(newContent);
                 }}
                 className="bg-[#b91c1c] hover:bg-[#991b1b] text-white px-8 py-2.5 rounded-xl font-bold tracking-wide transition-all shadow-lg"
               >

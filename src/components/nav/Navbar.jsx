@@ -24,6 +24,12 @@ import { useGetUserQuery } from "../../services/api/userApi.js";
 
 const items = [
     {
+        title: 'Carga de Mercadería',
+        url: '/admin/mercaderia',
+        icon: <FileTextIcon />,
+        section: "MENU"
+    },
+    {
         title: 'Inicio',
         url: '/dashboard',
         icon: <HomeIcon />,
@@ -33,12 +39,6 @@ const items = [
         title: 'Usuarios',
         url: '/users',
         icon: <UsersIcon />,
-        section: "MENU"
-    },
-    {
-        title: 'Carga de Mercadería',
-        url: '/admin/mercaderia',
-        icon: <FileTextIcon />,
         section: "MENU"
     }
 ]
