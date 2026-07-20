@@ -104,10 +104,10 @@ export function Hero() {
     <section
       ref={heroRef}
       id="inicio"
-      className="relative min-h-screen flex items-center justify-center z-40"
+      className="relative min-h-[100dvh] flex flex-col md:flex-row items-center justify-center z-40 bg-[#0a0a0a]"
     >
       {/* Background Image Slider */}
-      <div className="absolute inset-0 z-0 bg-black">
+      <div className="relative w-full h-[40vh] md:h-auto md:absolute md:inset-0 z-0 bg-black flex-shrink-0">
         {heroSlides.map((slide: any, index: number) => (
           <img
             key={slide.id || index}
@@ -122,12 +122,12 @@ export function Hero() {
           className="absolute inset-0 bg-black" 
           style={{ opacity: (settings.heroOverlayOpacity !== undefined ? settings.heroOverlayOpacity : 50) / 100 }} 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent md:from-black md:via-black/20" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 pt-24 pb-16 text-center">
-        <div className="max-w-4xl mx-auto">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 py-8 md:pt-24 md:pb-16 text-center flex-grow flex flex-col justify-center">
+        <div className="max-w-4xl mx-auto w-full">
           {/* Rating Badge */}
           <div className="inline-flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 shadow-xl px-4 py-2 rounded-full mb-8">
             <div className="flex items-center gap-1">
@@ -148,20 +148,20 @@ export function Hero() {
           </div>
 
           {/* Main Heading */}
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-medium text-white leading-tight mb-6 text-balance transition-all duration-500">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-medium text-white leading-tight mb-4 md:mb-6 text-balance transition-all duration-500">
             {currentSlide.title}
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-500">
+          <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed transition-all duration-500">
             {currentSlide.subtitle}{" "}
             <span className="text-[#C7A15E]">{currentSlide.highlight}</span>
           </p>
 
           {/* Search Bar */}
-          <div className="relative max-w-2xl mx-auto mb-8 z-50">
-            <form onSubmit={handleSearch} className="flex items-center bg-black/40 backdrop-blur-md rounded-full border border-white/20 focus-within:border-[#C7A15E] transition-all shadow-xl">
-              <Search className="absolute left-6 text-white/60" size={20} />
+          <div className="relative max-w-2xl mx-auto mb-6 md:mb-8 z-50">
+            <form onSubmit={handleSearch} className="flex items-center bg-[#1a1a1a]/80 md:bg-black/40 backdrop-blur-md rounded-full border border-white/10 md:border-white/20 focus-within:border-[#C7A15E] transition-all shadow-xl">
+              <Search className="absolute left-4 md:left-6 text-white/60" size={20} />
               <input
                 type="text"
                 value={query}

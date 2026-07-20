@@ -51,7 +51,7 @@ export default function PriceList() {
 
     const filteredProducts = products?.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = selectedCategory === 'TODOS' || product.category?.toUpperCase() === selectedCategory;
+        const matchesCategory = selectedCategory === 'TODOS' || product.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
@@ -74,7 +74,7 @@ export default function PriceList() {
                 <Header alwaysSolid={true} />
 
                 {/* Header Rojo Oscuro */}
-                <div ref={headerRef} className="bg-[#800b0e] mt-[92px] md:mt-[100px] pt-6 pb-0 flex flex-col shadow-md z-10 sticky top-[92px] md:top-[100px]">
+                <div ref={headerRef} className="bg-[#800b0e] mt-[92px] md:mt-[100px] pt-6 pb-0 flex flex-col shadow-md z-10">
                     <div className="px-4 flex items-center justify-between mb-2 text-white w-full">
                         <button onClick={() => navigate('/')} className="hover:text-gray-200 transition">
                             <ArrowLeft className="w-6 h-6" />
@@ -96,7 +96,7 @@ export default function PriceList() {
                         <Search className="absolute right-7 top-2.5 text-gray-400 w-5 h-5" />
                     </div>
 
-                    <div className="flex overflow-x-auto md:justify-center hide-scrollbar px-2 w-full">
+                    <div className="flex flex-wrap justify-center gap-2 px-2 w-full pb-4">
                         {categories.map(cat => (
                             <button
                                 key={cat}
