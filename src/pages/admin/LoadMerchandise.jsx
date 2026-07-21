@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useCreateProductMutation, useGetProductsQuery, useDeleteProductMutation, useUploadImageMutation, useUpdateProductMutation } from '../../services/api/productApi.js';
-import { useGetCategoriesQuery, useCreateCategoryMutation } from '../../services/api/categoryApi.js';
+import { useGetCategoriesQuery, useCreateCategoryMutation, useDeleteCategoryMutation } from '../../services/api/categoryApi.js';
 import { Button } from '../../components/ui/button.tsx';
 import { Input } from '../../components/ui/input.tsx';
 import { Label } from '../../components/ui/label.tsx';
 import { Textarea } from '../../components/ui/textarea.tsx';
 import { toast } from '../../components/ui/use-toast.tsx';
-import { Loader2, Trash2, Plus, Pencil, Search, X } from 'lucide-react';
+import { Loader2, Trash2, Plus, Pencil, Search, X, ChevronDown } from 'lucide-react';
 
 export default function LoadMerchandise() {
     const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
@@ -17,6 +17,39 @@ export default function LoadMerchandise() {
     const { data: products, isLoading: isLoadingProducts } = useGetProductsQuery();
     const { data: categories } = useGetCategoriesQuery();
     const [createCategory] = useCreateCategoryMutation();
+    const [deleteCategory] = useDeleteCategoryMutation();
+
+    const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
+    const [isEditCatDropdownOpen, setIsEditCatDropdownOpen] = useState(false);
+    const catDropdownRef = React.useRef(null);
+    const editCatDropdownRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (catDropdownRef.current && !catDropdownRef.current.contains(event.target)) {
+                setIsCatDropdownOpen(false);
+            }
+            if (editCatDropdownRef.current && !editCatDropdownRef.current.contains(event.target)) {
+                setIsEditCatDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleDeleteCategory = async (e, id, name) => {
+        e.stopPropagation();
+        if(window.confirm(`¿Seguro que deseas eliminar la categoría "${name}"?`)) {
+            try {
+                await deleteCategory(id).unwrap();
+                toast({ title: 'Éxito', description: 'Categoría eliminada', variant: 'success' });
+                if (formData.category === name) setFormData(prev => ({ ...prev, category: '' }));
+                if (editFormData.category === name) setEditFormData(prev => ({ ...prev, category: '' }));
+            } catch (err) {
+                toast({ title: 'Error', description: 'No se pudo eliminar la categoría', variant: 'destructive' });
+            }
+        }
+    };
 
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -184,18 +217,45 @@ export default function LoadMerchandise() {
                         <div className="space-y-2">
                             <Label htmlFor="category">Categoría</Label>
                             <div className="flex gap-2">
-                                <select 
-                                    id="category" 
-                                    name="category" 
-                                    value={formData.category} 
-                                    onChange={handleInputChange}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    <option value="">Seleccione una categoría</option>
-                                    {categories?.map(cat => (
-                                        <option key={cat.id} value={cat.name}>{cat.name}</option>
-                                    ))}
-                                </select>
+                                <div className="relative w-full" ref={catDropdownRef}>
+                                    <div 
+                                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
+                                        onClick={() => setIsCatDropdownOpen(!isCatDropdownOpen)}
+                                    >
+                                        <span className={formData.category ? "" : "text-muted-foreground"}>
+                                            {formData.category || "Seleccione una categoría"}
+                                        </span>
+                                        <ChevronDown className="h-4 w-4 opacity-50" />
+                                    </div>
+                                    
+                                    {isCatDropdownOpen && (
+                                        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md bg-white">
+                                            <div 
+                                                className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-3 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground hover:bg-gray-100"
+                                                onClick={() => { setFormData(prev => ({ ...prev, category: '' })); setIsCatDropdownOpen(false); }}
+                                            >
+                                                Seleccione una categoría
+                                            </div>
+                                            {categories?.map(cat => (
+                                                <div 
+                                                    key={cat.id} 
+                                                    className="relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm py-1.5 pl-3 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground hover:bg-gray-100 group"
+                                                    onClick={() => { setFormData(prev => ({ ...prev, category: cat.name })); setIsCatDropdownOpen(false); }}
+                                                >
+                                                    <span>{cat.name}</span>
+                                                    <button 
+                                                        type="button"
+                                                        onClick={(e) => handleDeleteCategory(e, cat.id, cat.name)}
+                                                        className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-700 transition-opacity p-1"
+                                                        title="Eliminar categoría"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                                 <Button type="button" onClick={handleAddCategory} variant="outline" size="icon">
                                     <Plus className="h-4 w-4" />
                                 </Button>
@@ -319,18 +379,45 @@ export default function LoadMerchandise() {
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-category">Categoría</Label>
                                     <div className="flex gap-2">
-                                        <select 
-                                            id="edit-category" 
-                                            name="category" 
-                                            value={editFormData.category} 
-                                            onChange={handleEditInputChange}
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            <option value="">Seleccione una categoría</option>
-                                            {categories?.map(cat => (
-                                                <option key={cat.id} value={cat.name}>{cat.name}</option>
-                                            ))}
-                                        </select>
+                                        <div className="relative w-full" ref={editCatDropdownRef}>
+                                            <div 
+                                                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
+                                                onClick={() => setIsEditCatDropdownOpen(!isEditCatDropdownOpen)}
+                                            >
+                                                <span className={editFormData.category ? "" : "text-muted-foreground"}>
+                                                    {editFormData.category || "Seleccione una categoría"}
+                                                </span>
+                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                            </div>
+                                            
+                                            {isEditCatDropdownOpen && (
+                                                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md bg-white">
+                                                    <div 
+                                                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-3 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground hover:bg-gray-100"
+                                                        onClick={() => { setEditFormData(prev => ({ ...prev, category: '' })); setIsEditCatDropdownOpen(false); }}
+                                                    >
+                                                        Seleccione una categoría
+                                                    </div>
+                                                    {categories?.map(cat => (
+                                                        <div 
+                                                            key={cat.id} 
+                                                            className="relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm py-1.5 pl-3 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground hover:bg-gray-100 group"
+                                                            onClick={() => { setEditFormData(prev => ({ ...prev, category: cat.name })); setIsEditCatDropdownOpen(false); }}
+                                                        >
+                                                            <span>{cat.name}</span>
+                                                            <button 
+                                                                type="button"
+                                                                onClick={(e) => handleDeleteCategory(e, cat.id, cat.name)}
+                                                                className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-700 transition-opacity p-1"
+                                                                title="Eliminar categoría"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 

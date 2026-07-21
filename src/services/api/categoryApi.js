@@ -14,10 +14,18 @@ export const categoryApi = authApi.injectEndpoints({
             }),
             invalidatesTags: ['Category'],
         }),
+        deleteCategory: builder.mutation({
+            query: (id) => ({
+                url: `/api/categories/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Category'],
+        }),
     }),
 });
 
 export const {
     useGetCategoriesQuery,
     useCreateCategoryMutation,
+    useDeleteCategoryMutation,
 } = categoryApi;
