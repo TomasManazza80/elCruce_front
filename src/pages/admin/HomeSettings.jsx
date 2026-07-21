@@ -6,6 +6,7 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export default function HomeSettings() {
   const [content, setContent] = useState(null);
+  const contentRef = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
@@ -27,11 +28,15 @@ export default function HomeSettings() {
 
   const handleContentChange = (newContent) => {
     setContent(newContent);
+    contentRef.current = newContent;
     setSaveSuccess(false); // Reset success state when editing
   };
 
   const handleSave = async (overrideContent) => {
-    const dataToSave = (overrideContent && !overrideContent.nativeEvent) ? overrideContent : content;
+    // Wait a brief moment to allow any pending onBlur events (which have a 150ms timeout) to update the state
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    const dataToSave = (overrideContent && !overrideContent.nativeEvent) ? overrideContent : contentRef.current;
     if (!dataToSave) return;
     setIsSaving(true);
     setSaveSuccess(false);
